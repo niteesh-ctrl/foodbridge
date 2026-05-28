@@ -1,0 +1,256 @@
+{% extends "base.html" %}
+
+{% block title %}Receiver Dashboard - FoodBridge{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col">
+            <h1 class="h3"><i class="bi bi-building text-warning me-2"></i>Receiver Dashboard</h1>
+            <p class="text-muted">Welcome back, {{ current_user.name }}! Browse and claim available food donations.</p>
+        </div>
+    </div>
+
+    <!-- Tabs -->
+    <ul class="nav nav-tabs mb-4" id="dashboardTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="browse-tab" data-bs-toggle="tab" data-bs-target="#browse" type="button">
+                <i class="bi bi-search me-1"></i>Browse Food
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="claimed-tab" data-bs-toggle="tab" data-bs-target="#claimed" type="button">
+                <i class="bi bi-bag-check me-1"></i>My Claims
+                {% if claims %}<span class="badge bg-warning text-dark ms-1">{{ claims|length }}</span>{% endif %}
+            </button>
+        </li>
+    </ul>
+
+    <div class="tab-content" id="dashboardTabsContent">
+        <!-- Browse Tab -->
+        <div class="tab-pane fade show active" id="browse" role="tabpanel">
+            <!-- Filters -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <label class="form-label">Filter by Zone</label>
+                            <select class="form-select" id="filter_zone" onchange="filterListings()">
+                                <option value="">All Zones</option>
+                                <option value="Zone A">Zone A</option>
+                                <option value="Zone B">Zone B</option>
+                                <option value="Zone C">Zone C</option>
+                                <option value="Zone D">Zone D</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Filter by Category</label>
+                            <select class="form-select" id="filter_category" onchange="filterListings()">
+                                <option value="">All Categories</option>
+                                <option value="Cooked">Cooked Food</option>
+                                <option value="Raw">Raw Ingredients</option>
+                                <option value="Packaged">Packaged Food</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Min Quantity (kg)</label>
+                            <input type="number" class="form-control" id="filter_quantity" placeholder="Any" onchange="filterListings()">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Listings -->
+            <div class="row" id="listingsContainer">
+                {% if listings %}
+                    {% for listing in listings %}
+                    <div class="col-md-6 col-lg-4 mb-4 listing-card"
+                         data-zone="{{ listing.zone }}"
+                         data-category="{{ listing.category }}"
+                         data-quantity="{{ listing.quantity }}">
+                        <div class="card h-100 border-0 shadow-sm">
+                            {% if listing.image_path %}
+                            <img src="{{ listing.image_path }}" class="card-img-top" alt="{{ listing.food_name }}" style="height: 200px; object-fit: cover;">
+                            {% else %}
+                            <div class="card-img-top bg-success-subtle d-flex align-items-center justify-content-center" style="height: 200px;">
+                                <i class="bi bi-box-seam display-4 text-success"></i>
+                            </div>
+                            {% endif %}
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <h6 class="card-title mb-0">{{ listing.food_name }}</h6>
+                                    <span class="badge bg-secondary">{{ listing.category }}</span>
+                                </div>
+                                <p class="card-text text-muted small">{{ listing.description or 'No description provided' }}</p>
+                                <hr>
+                                <div class="row g-2 text-center small">
+                                    <div class="col-4">
+                                        <i class="bi bi-box text-success d-block"></i>
+                                        <strong>{{ listing.quantity }} kg</strong>
+                                    </div>
+                                    <div class="col-4">
+                                        <i class="bi bi-geo-alt text-warning d-block"></i>
+                                        <strong>{{ listing.zone }}</strong>
+                                    </div>
+                                    <div class="col-4">
+                                        <i class="bi bi-clock text-danger d-block"></i>
+                                        <strong>{{ listing.expiry_time.strftime('%H:%M') }}</strong>
+                                    </div>
+                                </div>
+                                <hr>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <small class="text-muted">
+                                        <i class="bi bi-person"></i> {{ listing.donor.name }}
+                                    </small>
+                                    <button class="btn btn-warning text-white btn-sm" onclick="claimDonation({{ listing.id }})">
+                                        <i class="bi bi-check-circle me-1"></i>Claim
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                <div class="col-12">
+                    <div class="text-center py-5">
+                        <i class="bi bi-inbox display-4 text-muted"></i>
+                        <p class="text-muted mt-3">No food donations available at the moment. Check back soon!</p>
+                    </div>
+                </div>
+                {% endif %}
+                <!-- No filter results message (hidden by default) -->
+                <div class="col-12 d-none" id="noFilterResults">
+                    <div class="text-center py-5">
+                        <i class="bi bi-funnel display-4 text-muted"></i>
+                        <p class="text-muted mt-3">No donations match your filter. Try adjusting the filters above.</p>
+                        <button class="btn btn-outline-success btn-sm" onclick="clearFilters()">
+                            <i class="bi bi-x-circle me-1"></i>Clear Filters
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Claims Tab -->
+        <div class="tab-pane fade" id="claimed" role="tabpanel">
+            {% if claims %}
+            <div class="card border-0 shadow-sm">
+                <div class="card-body table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Food</th>
+                                <th>Donor</th>
+                                <th>Quantity</th>
+                                <th>Pickup Address</th>
+                                <th>Zone</th>
+                                <th>Donor Phone</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for claim in claims %}
+                            <tr>
+                                <td>
+                                    <strong>{{ claim.listing.food_name }}</strong>
+                                    <br><small class="text-muted">{{ claim.listing.category }}</small>
+                                </td>
+                                <td>{{ claim.listing.donor.name }}</td>
+                                <td>{{ claim.listing.quantity }} kg</td>
+                                <td>{{ claim.listing.pickup_address }}</td>
+                                <td>
+                                    <span class="badge bg-secondary">{{ claim.listing.zone }}</span>
+                                </td>
+                                <td>
+                                    <a href="tel:{{ claim.listing.donor.phone }}" class="btn btn-sm btn-outline-success">
+                                        <i class="bi bi-telephone"></i> {{ claim.listing.donor.phone or 'Not provided' }}
+                                    </a>
+                                </td>
+                                <td>
+                                    {% if claim.status == 'pending' %}
+                                    <span class="badge bg-warning text-dark">Pending Pickup</span>
+                                    {% elif claim.status == 'completed' %}
+                                    <span class="badge bg-success">Completed</span>
+                                    {% else %}
+                                    <span class="badge bg-secondary">Cancelled</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            {% else %}
+            <div class="text-center py-5">
+                <i class="bi bi-bag display-4 text-muted"></i>
+                <p class="text-muted mt-3">No claims yet. Browse available food and claim what you need!</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+async function claimDonation(id) {
+    if (confirm('Are you sure you want to claim this food donation?')) {
+        try {
+            const response = await fetch(`/api/claim/${id}`, { method: 'POST' });
+            const result = await response.json();
+
+            if (result.success) {
+                alert('Donation claimed successfully! Check your claims tab for pickup details.');
+                location.reload();
+            } else {
+                alert(result.message || 'Failed to claim donation');
+            }
+        } catch (error) {
+            alert('An error occurred. Please try again.');
+        }
+    }
+}
+
+function filterListings() {
+    const zone = document.getElementById('filter_zone').value;
+    const category = document.getElementById('filter_category').value;
+    const quantity = parseFloat(document.getElementById('filter_quantity').value) || 0;
+
+    let visibleCount = 0;
+
+    document.querySelectorAll('.listing-card').forEach(card => {
+        const cardZone = card.dataset.zone;
+        const cardCategory = card.dataset.category;
+        const cardQuantity = parseFloat(card.dataset.quantity);
+
+        const matchZone = !zone || cardZone === zone;
+        const matchCategory = !category || cardCategory === category;
+        const matchQuantity = cardQuantity >= quantity;
+
+        if (matchZone && matchCategory && matchQuantity) {
+            card.style.display = '';
+            visibleCount++;
+        } else {
+            card.style.display = 'none';
+        }
+    });
+
+    // Show/hide "no results" message
+    const noResults = document.getElementById('noFilterResults');
+    if (visibleCount === 0 && document.querySelectorAll('.listing-card').length > 0) {
+        noResults.classList.remove('d-none');
+    } else {
+        noResults.classList.add('d-none');
+    }
+}
+
+function clearFilters() {
+    document.getElementById('filter_zone').value = '';
+    document.getElementById('filter_category').value = '';
+    document.getElementById('filter_quantity').value = '';
+    filterListings();
+}
+</script>
+{% endblock %}

@@ -1,0 +1,190 @@
+{% extends "base.html" %}
+
+{% block title %}Register - FoodBridge{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card border-0 shadow">
+                <div class="card-body p-5">
+                    <div class="text-center mb-4">
+                        <a href="{{ url_for('index') }}" class="text-decoration-none">
+                            <h2 class="fw-bold text-success">
+                                <i class="bi bi-heart-pulse me-2"></i>FoodBridge
+                            </h2>
+                        </a>
+                        <p class="text-muted">Join the movement to reduce food waste</p>
+                    </div>
+
+                    <!-- Role Selection -->
+                    <div class="row mb-4">
+                        <div class="col-md-6 mb-3 mb-md-0">
+                            <button class="btn btn-outline-success w-100 p-4 role-btn active" data-role="donor" type="button">
+                                <i class="bi bi-person-heart d-block fs-2 mb-2"></i>
+                                <strong>I want to Donate Food</strong>
+                                <small class="d-block text-muted">Restaurants, Events, Individuals</small>
+                            </button>
+                        </div>
+                        <div class="col-md-6">
+                            <button class="btn btn-outline-warning w-100 p-4 role-btn" data-role="receiver" type="button">
+                                <i class="bi bi-building d-block fs-2 mb-2"></i>
+                                <strong>I need Food</strong>
+                                <small class="d-block text-muted">NGOs, Orphanages, Shelters</small>
+                            </button>
+                        </div>
+                    </div>
+
+                    <hr class="my-4">
+
+                    <form id="registerForm">
+                        <input type="hidden" id="role" value="donor">
+
+                        <!-- Common Fields -->
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Full Name *</label>
+                                <input type="text" class="form-control" id="name" required placeholder="Your full name">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Email Address *</label>
+                                <input type="email" class="form-control" id="email" required placeholder="you@example.com">
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Phone Number</label>
+                                <input type="tel" class="form-control" id="phone" placeholder="+1 (555) 123-4567">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Zone *</label>
+                                <select class="form-select" id="zone" required>
+                                    <option value="">Select Zone...</option>
+                                    <option value="Zone A">Zone A - Downtown</option>
+                                    <option value="Zone B">Zone B - North District</option>
+                                    <option value="Zone C">Zone C - South District</option>
+                                    <option value="Zone D">Zone D - East District</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Address</label>
+                            <input type="text" class="form-control" id="address" placeholder="Full address">
+                        </div>
+
+                        <!-- Receiver Only Fields -->
+                        <div id="receiverFields" class="d-none">
+                            <div class="mb-3">
+                                <label class="form-label">Organization/NGO Name *</label>
+                                <input type="text" class="form-control" id="organization_name" placeholder="Your organization name">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Registration Number *</label>
+                                <input type="text" class="form-control" id="registration_number" placeholder="Official registration number">
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Password *</label>
+                                <input type="password" class="form-control" id="password" required minlength="6" placeholder="Min 6 characters">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Confirm Password *</label>
+                                <input type="password" class="form-control" id="confirm_password" required placeholder="Confirm password">
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-success btn-lg w-100 mt-3">
+                            <i class="bi bi-person-plus me-2"></i>Create Account
+                        </button>
+                    </form>
+
+                    <div class="text-center mt-4">
+                        <p class="text-muted mb-0">
+                            Already have an account?
+                            <a href="{{ url_for('login') }}" class="text-success">Sign In</a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Role selection
+document.querySelectorAll('.role-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+        document.querySelectorAll('.role-btn').forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+
+        const role = this.dataset.role;
+        document.getElementById('role').value = role;
+
+        // Toggle receiver fields
+        const receiverFields = document.getElementById('receiverFields');
+        if (role === 'receiver') {
+            receiverFields.classList.remove('d-none');
+            document.getElementById('organization_name').required = true;
+            document.getElementById('registration_number').required = true;
+        } else {
+            receiverFields.classList.add('d-none');
+            document.getElementById('organization_name').required = false;
+            document.getElementById('registration_number').required = false;
+        }
+    });
+});
+
+// Form submission
+document.getElementById('registerForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const password = document.getElementById('password').value;
+    const confirmPassword = document.getElementById('confirm_password').value;
+
+    if (password !== confirmPassword) {
+        alert('Passwords do not match!');
+        return;
+    }
+
+    const formData = {
+        name: document.getElementById('name').value,
+        email: document.getElementById('email').value,
+        password: password,
+        phone: document.getElementById('phone').value,
+        address: document.getElementById('address').value,
+        zone: document.getElementById('zone').value,
+        role: document.getElementById('role').value
+    };
+
+    if (formData.role === 'receiver') {
+        formData.organization_name = document.getElementById('organization_name').value;
+        formData.registration_number = document.getElementById('registration_number').value;
+    }
+
+    try {
+        const response = await fetch('/api/register', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(formData)
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            alert('Registration successful! Please login.');
+            window.location.href = '/login';
+        } else {
+            alert(result.message || 'Registration failed. Please try again.');
+        }
+    } catch (error) {
+        alert('An error occurred. Please try again.');
+    }
+});
+</script>
+{% endblock %}

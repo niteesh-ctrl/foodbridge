@@ -1,0 +1,342 @@
+/* FoodBridge Custom Styles */
+
+/* Color Variables */
+:root {
+    --foodbridge-green: #2e7d32;
+    --foodbridge-green-light: #4caf50;
+    --foodbridge-orange: #f57c00;
+    --foodbridge-orange-light: #ff9800;
+}
+
+/* Navbar Styling */
+.navbar {
+    background: linear-gradient(135deg, #2e7d32 0%, #1b5e20 100%);
+}
+
+/* Text Colors */
+.text-orange {
+    color: #f57c00 !important;
+}
+
+.bg-orange-subtle {
+    background-color: rgba(245, 124, 0, 0.1) !important;
+}
+
+.bg-success-subtle {
+    background-color: rgba(46, 125, 50, 0.1) !important;
+}
+
+.bg-warning-subtle {
+    background-color: rgba(255, 152, 0, 0.1) !important;
+}
+
+.bg-info-subtle {
+    background-color: rgba(13, 202, 240, 0.1) !important;
+}
+
+.bg-primary-subtle {
+    background-color: rgba(13, 110, 253, 0.1) !important;
+}
+
+/* Button Colors */
+.btn-warning {
+    background-color: #f57c00;
+    border-color: #f57c00;
+}
+
+.btn-warning:hover {
+    background-color: #ef6c00;
+    border-color: #ef6c00;
+}
+
+.btn-outline-warning {
+    color: #f57c00;
+    border-color: #f57c00;
+}
+
+.btn-outline-warning:hover {
+    background-color: #f57c00;
+    border-color: #f57c00;
+}
+
+/* Gradients */
+.bg-gradient-forest {
+    background: linear-gradient(135deg, #2e7d32 0%, #1b5e20 100%);
+}
+
+.bg-gradient-orange {
+    background: linear-gradient(135deg, #f57c00 0%, #ef6c00 100%);
+}
+
+/* Hero Section */
+.hero-section {
+    background: linear-gradient(180deg, rgba(46, 125, 50, 0.05) 0%, rgba(255, 255, 255, 0) 100%);
+    padding-top: 80px;
+}
+
+.hero-image {
+    animation: float 6s ease-in-out infinite;
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-20px); }
+}
+
+.min-vh-75 {
+    min-height: 75vh;
+}
+
+/* Stats Section */
+.stats-section .stat-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.stats-section .stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+}
+
+.stat-icon {
+    width: 60px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+}
+
+/* How It Works */
+.how-it-works .step-card {
+    position: relative;
+    transition: transform 0.3s ease;
+}
+
+.how-it-works .step-card:hover {
+    transform: translateY(-10px);
+}
+
+.step-number {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    position: relative;
+    z-index: 1;
+}
+
+.step-icon {
+    width: 80px;
+    height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+}
+
+/* Cards */
+.card {
+    border-radius: 0.75rem;
+    transition: all 0.3s ease;
+}
+
+.card:hover {
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Stat Cards */
+.stat-card {
+    border-radius: 1rem;
+}
+
+.stat-card:hover {
+    transform: translateY(-3px);
+}
+
+/* Footer */
+.footer {
+    background: #1a1a1a;
+}
+
+/* Form Styling */
+.form-control:focus,
+.form-select:focus {
+    border-color: #2e7d32;
+    box-shadow: 0 0 0 0.2rem rgba(46, 125, 50, 0.25);
+}
+
+/* Role Selection Buttons */
+.role-btn {
+    text-align: center;
+    transition: all 0.3s ease;
+    border-width: 2px;
+}
+
+.role-btn.active {
+    background-color: #2e7d32;
+    border-color: #2e7d32;
+    color: white;
+}
+
+.role-btn[data-role="receiver"].active {
+    background-color: #f57c00;
+    border-color: #f57c00;
+}
+
+/* Table Styling */
+.table-hover tbody tr:hover {
+    background-color: rgba(46, 125, 50, 0.05);
+}
+
+/* Navbar Links on Mobile */
+@media (max-width: 991.98px) {
+    .navbar-nav .dropdown-menu {
+        background-color: transparent;
+        border: none;
+    }
+
+    .navbar-collapse {
+        padding: 1rem;
+        background-color: rgba(27, 94, 32, 0.95);
+        margin-top: 0.5rem;
+        border-radius: 0.5rem;
+    }
+
+    .nav-link.btn {
+        display: block;
+        text-align: center;
+        margin-top: 0.5rem;
+    }
+}
+
+/* CTA Section */
+.cta-section {
+    background: linear-gradient(135deg, #2e7d32 0%, #388e3c 100%);
+}
+
+/* Testimonials */
+.testimonials-section .card {
+    transition: transform 0.3s ease;
+}
+
+.testimonials-section .card:hover {
+    transform: translateY(-5px);
+}
+
+/* Prediction Section */
+.prediction-section .alert {
+    border-left: 4px solid #f57c00;
+}
+
+/* Charts */
+#predictionChart {
+    max-height: 300px;
+}
+
+/* Loading Spinner */
+.spinner {
+    width: 3rem;
+    height: 3rem;
+    border: 0.3rem solid rgba(46, 125, 50, 0.1);
+    border-top-color: #2e7d32;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #a1a1a1;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 767.98px) {
+    .display-5 {
+        font-size: 2rem;
+    }
+
+    .hero-section {
+        padding-top: 100px;
+        min-height: auto;
+    }
+
+    .stat-icon {
+        width: 50px;
+        height: 50px;
+        font-size: 1.25rem;
+    }
+}
+
+/* Badge Styles */
+.badge {
+    font-weight: 500;
+}
+
+/* Animation for counters */
+.counter {
+    transition: all 0.5s ease;
+}
+
+/* Card Hover Effects */
+.card-hover {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card-hover:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 1rem 2rem rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Flash Messages Animation */
+.alert-dismissible {
+    animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Nav Tabs Styling */
+.nav-tabs .nav-link {
+    color: #6c757d;
+    border: none;
+    padding: 0.75rem 1.25rem;
+}
+
+.nav-tabs .nav-link:hover {
+    border-color: transparent;
+    color: #2e7d32;
+}
+
+.nav-tabs .nav-link.active {
+    color: #2e7d32;
+    border-bottom: 3px solid #2e7d32;
+    background-color: transparent;
+}

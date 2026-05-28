@@ -1,0 +1,238 @@
+{% extends "base.html" %}
+
+{% block title %}FoodBridge - Reduce Food Waste, Feed Communities{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section">
+    <div class="container">
+        <div class="row align-items-center min-vh-75">
+            <div class="col-lg-6">
+                <span class="badge bg-success-subtle text-success mb-3 px-3 py-2">
+                    <i class="bi bi-stars me-1"></i>Making a Difference Together
+                </span>
+                <h1 class="display-4 fw-bold mb-4">
+                    Millions Starve.<br>
+                    <span class="text-orange">Tons of Food is Wasted.</span><br>
+                    Let's Bridge the Gap.
+                </h1>
+                <p class="lead text-muted mb-4">
+                    FoodBridge connects surplus food donors with NGOs and orphanages,
+                    ensuring nutritious meals reach those who need them most.
+                </p>
+                <div class="d-flex gap-3">
+                    <a href="{{ url_for('register') }}" class="btn btn-success btn-lg px-4">
+                        <i class="bi bi-box-heart me-2"></i>Donate Food
+                    </a>
+                    <a href="{{ url_for('register') }}" class="btn btn-outline-warning btn-lg px-4">
+                        <i class="bi bi-building me-2"></i>Need Food?
+                    </a>
+                </div>
+            </div>
+            <div class="col-lg-6 d-none d-lg-block">
+                <img src="https://images.pexels.com/photos/67636/rose-blue-flower-rose-blooms-67636.jpeg?auto=compress&cs=tinysrgb&w=600"
+                     alt="Fresh food donation"
+                     class="img-fluid rounded-4 shadow-lg hero-image">
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Live Stats Counter -->
+<section class="stats-section py-5 bg-light">
+    <div class="container">
+        <div class="row text-center">
+            <div class="col-md-4 mb-4 mb-md-0">
+                <div class="stat-card p-4 rounded-4 bg-white shadow-sm">
+                    <div class="stat-icon bg-success-subtle rounded-circle mx-auto mb-3">
+                        <i class="bi bi-box-seam text-success"></i>
+                    </div>
+                    <h2 class="display-5 fw-bold text-success counter" data-target="{{ total_donations }}">0</h2>
+                    <p class="text-muted mb-0">Total Donations</p>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4 mb-md-0">
+                <div class="stat-card p-4 rounded-4 bg-white shadow-sm">
+                    <div class="stat-icon bg-warning-subtle rounded-circle mx-auto mb-3">
+                        <i class="bi bi-people text-warning"></i>
+                    </div>
+                    <h2 class="display-5 fw-bold text-warning counter" data-target="{{ meals_served }}">0</h2>
+                    <p class="text-muted mb-0">Meals Served</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="stat-card p-4 rounded-4 bg-white shadow-sm">
+                    <div class="stat-icon bg-orange-subtle rounded-circle mx-auto mb-3">
+                        <i class="bi bi-house-heart text-orange"></i>
+                    </div>
+                    <h2 class="display-5 fw-bold text-orange counter" data-target="{{ orphanages_helped }}">0</h2>
+                    <p class="text-muted mb-0">Orphanages Helped</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ML Prediction Banner -->
+{% if predictions %}
+<section class="prediction-section py-4">
+    <div class="container">
+        <div class="alert alert-warning border-0 shadow-sm d-flex align-items-center" role="alert">
+            <i class="bi bi-magic fs-4 me-3"></i>
+            <div>
+                <strong>Surplus Prediction:</strong>
+                {% for p in predictions[:3] %}
+                    <span class="badge {% if p.predicted_surplus == 'High' %}bg-danger{% elif p.predicted_surplus == 'Medium' %}bg-warning text-dark{% else %}bg-success{% endif %} ms-2">
+                        {{ p.zone }} on {{ p.day }}: {{ p.predicted_surplus }}
+                    </span>
+                {% endfor %}
+                <span class="ms-2 text-muted">- Plan ahead for food pickup!</span>
+            </div>
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- How It Works -->
+<section class="how-it-works py-5">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="display-6 fw-bold">How It Works</h2>
+            <p class="text-muted lead">Three simple steps to make a difference</p>
+        </div>
+        <div class="row">
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 border-0 shadow-sm step-card">
+                    <div class="card-body text-center p-4">
+                        <div class="step-number bg-success text-white rounded-circle mx-auto mb-3">1</div>
+                        <div class="step-icon bg-success-subtle rounded-circle mx-auto mb-3">
+                            <i class="bi bi-pencil-square text-success"></i>
+                        </div>
+                        <h5 class="fw-bold">Post Food</h5>
+                        <p class="text-muted">List your surplus food with details - name, quantity, pickup location, and expiry time.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 border-0 shadow-sm step-card">
+                    <div class="card-body text-center p-4">
+                        <div class="step-number bg-warning text-dark rounded-circle mx-auto mb-3">2</div>
+                        <div class="step-icon bg-warning-subtle rounded-circle mx-auto mb-3">
+                            <i class="bi bi-link-45deg text-warning"></i>
+                        </div>
+                        <h5 class="fw-bold">Match Receiver</h5>
+                        <p class="text-muted">NGOs and orphanages browse listings and claim available food donations.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 border-0 shadow-sm step-card">
+                    <div class="card-body text-center p-4">
+                        <div class="step-number bg-orange text-white rounded-circle mx-auto mb-3">3</div>
+                        <div class="step-icon bg-orange-subtle rounded-circle mx-auto mb-3">
+                            <i class="bi bi-truck text-orange"></i>
+                        </div>
+                        <h5 class="fw-bold">Deliver</h5>
+                        <p class="text-muted">Coordinate pickup and deliver food to those who truly need it.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Testimonials -->
+<section class="testimonials-section py-5 bg-light">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="display-6 fw-bold">Stories of Impact</h2>
+            <p class="text-muted">Real experiences from our community</p>
+        </div>
+        <div class="row">
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-center mb-3">
+                            <img src="https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&w=100"
+                                 alt="John" class="rounded-circle me-3" width="50" height="50">
+                            <div>
+                                <h6 class="mb-0">John Restaurant</h6>
+                                <small class="text-muted">Restaurant Owner, Donor</small>
+                            </div>
+                        </div>
+                        <p class="text-muted mb-0">"We used to throw away so much food daily. Now, our leftovers feed 50+ children. It feels amazing to make a difference."</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-center mb-3">
+                            <img src="https://images.pexels.com/photos/1181686/pexels-photo-1181686.jpeg?auto=compress&cs=tinysrgb&w=100"
+                                 alt="Maria" class="rounded-circle me-3" width="50" height="50">
+                            <div>
+                                <h6 class="mb-0">Sister Maria</h6>
+                                <small class="text-muted">Orphanage Director, Receiver</small>
+                            </div>
+                        </div>
+                        <p class="text-muted mb-0">"FoodBridge has been a blessing. We now have a reliable source of nutritious food for our 30 children."</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-center mb-3">
+                            <img src="https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg?auto=compress&cs=tinysrgb&w=100"
+                                 alt="Sarah" class="rounded-circle me-3" width="50" height="50">
+                            <div>
+                                <h6 class="mb-0">Sarah Chen</h6>
+                                <small class="text-muted">Event Planner, Donor</small>
+                            </div>
+                        </div>
+                        <p class="text-muted mb-0">"After my daughter's birthday party, we had extra food. FoodBridge made it easy to donate to a local shelter."</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="cta-section py-5 bg-gradient-forest text-white">
+    <div class="container text-center">
+        <h2 class="display-6 fw-bold mb-3">Ready to Make a Difference?</h2>
+        <p class="lead mb-4">Join thousands of donors and organizations already using FoodBridge</p>
+        <div class="d-flex gap-3 justify-content-center">
+            <a href="{{ url_for('register') }}" class="btn btn-light btn-lg px-5">
+                <i class="bi bi-heart me-2"></i>Join as Donor
+            </a>
+            <a href="{{ url_for('register') }}" class="btn btn-outline-light btn-lg px-5">
+                <i class="bi bi-building me-2"></i>Join as Receiver
+            </a>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Animate counters
+    document.querySelectorAll('.counter').forEach(counter => {
+        const target = parseInt(counter.dataset.target);
+        const duration = 2000;
+        const step = target / (duration / 16);
+        let current = 0;
+
+        const timer = setInterval(() => {
+            current += step;
+            if (current >= target) {
+                counter.textContent = target.toLocaleString();
+                clearInterval(timer);
+            } else {
+                counter.textContent = Math.floor(current).toLocaleString();
+            }
+        }, 16);
+    });
+</script>
+{% endblock %}

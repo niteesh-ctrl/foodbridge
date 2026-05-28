@@ -1,0 +1,353 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard - FoodBridge{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col">
+            <h1 class="h3"><i class="bi bi-shield-check text-success me-2"></i>Admin Dashboard</h1>
+            <p class="text-muted">Platform management and analytics</p>
+        </div>
+        <div class="col-auto">
+            <div class="dropdown">
+                <button class="btn btn-outline-success dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                    <i class="bi bi-download me-1"></i>Export Data
+                </button>
+                <ul class="dropdown-menu">
+                    <li><a class="dropdown-item" href="/api/admin/export/users"><i class="bi bi-people me-2"></i>Users CSV</a></li>
+                    <li><a class="dropdown-item" href="/api/admin/export/listings"><i class="bi bi-box-seam me-2"></i>Listings CSV</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="row mb-4">
+        <div class="col-xl-3 col-md-6 mb-3">
+            <div class="card border-0 shadow-sm stat-card h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted mb-1">Total Users</h6>
+                            <h2 class="mb-0">{{ total_users }}</h2>
+                        </div>
+                        <div class="stat-icon bg-primary-subtle rounded-circle">
+                            <i class="bi bi-people text-primary"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6 mb-3">
+            <div class="card border-0 shadow-sm stat-card h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted mb-1">Active Listings</h6>
+                            <h2 class="mb-0">{{ active_listings }}</h2>
+                        </div>
+                        <div class="stat-icon bg-success-subtle rounded-circle">
+                            <i class="bi bi-box-seam text-success"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6 mb-3">
+            <div class="card border-0 shadow-sm stat-card h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted mb-1">Claims Today</h6>
+                            <h2 class="mb-0">{{ claims_today }}</h2>
+                        </div>
+                        <div class="stat-icon bg-warning-subtle rounded-circle">
+                            <i class="bi bi-check2-circle text-warning"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6 mb-3">
+            <div class="card border-0 shadow-sm stat-card bg-warning-subtle h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-warning mb-1">High Surplus Zones</h6>
+                            <h2 class="mb-0">{{ predictions|selectattr('predicted_surplus', 'equalto', 'High')|list|length }}</h2>
+                        </div>
+                        <i class="bi bi-graph-up-arrow text-warning fs-1"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- ML Predictions Chart -->
+        <div class="col-lg-6 mb-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0"><i class="bi bi-graph-bar me-2"></i>ML Surplus Predictions by Zone</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="predictionChart" height="300"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Predictions -->
+        <div class="col-lg-6 mb-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0"><i class="bi bi-magic me-2"></i>Predicted Surplus Levels</h5>
+                </div>
+                <div class="card-body" style="max-height: 350px; overflow-y: auto;">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>Zone</th>
+                                <th>Day</th>
+                                <th>Predicted Level</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for p in predictions[:10] %}
+                            <tr>
+                                <td><span class="badge bg-secondary">{{ p.zone }}</span></td>
+                                <td>{{ p.day }}</td>
+                                <td>
+                                    <span class="badge {% if p.predicted_surplus == 'High' %}bg-danger{% elif p.predicted_surplus == 'Medium' %}bg-warning text-dark{% else %}bg-success{% endif %}">
+                                        {{ p.predicted_surplus }}
+                                    </span>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabs for Data Management -->
+    <ul class="nav nav-tabs mb-3" id="adminTabs" role="tablist">
+        <li class="nav-item">
+            <button class="nav-link active" id="users-tab" data-bs-toggle="tab" data-bs-target="#users" type="button">
+                <i class="bi bi-people me-1"></i>Users
+            </button>
+        </li>
+        <li class="nav-item">
+            <button class="nav-link" id="listings-tab" data-bs-toggle="tab" data-bs-target="#listings" type="button">
+                <i class="bi bi-box-seam me-1"></i>Food Listings
+            </button>
+        </li>
+        <li class="nav-item">
+            <button class="nav-link" id="claims-tab" data-bs-toggle="tab" data-bs-target="#claims" type="button">
+                <i class="bi bi-bag-check me-1"></i>Claims
+            </button>
+        </li>
+    </ul>
+
+    <div class="tab-content">
+        <!-- Users Tab -->
+        <div class="tab-pane fade show active" id="users" role="tabpanel">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th>ID</th>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Role</th>
+                                <th>Zone</th>
+                                <th>Verified</th>
+                                <th>Joined</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for user in users %}
+                            <tr>
+                                <td>{{ user.id }}</td>
+                                <td>{{ user.name }}</td>
+                                <td>{{ user.email }}</td>
+                                <td>
+                                    <span class="badge {% if user.role == 'donor' %}bg-success{% elif user.role == 'receiver' %}bg-warning text-dark{% else %}bg-primary{% endif %}">
+                                        {{ user.role }}
+                                    </span>
+                                </td>
+                                <td>{{ user.zone }}</td>
+                                <td>
+                                    {% if user.is_verified %}
+                                    <span class="badge bg-success">Yes</span>
+                                    {% else %}
+                                    <span class="badge bg-secondary">No</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ user.created_at.strftime('%d %b') }}</td>
+                                <td>
+                                    {% if not user.is_verified and user.role != 'admin' %}
+                                    <button class="btn btn-sm btn-outline-success me-1" onclick="approveUser({{ user.id }})">
+                                        <i class="bi bi-check"></i>
+                                    </button>
+                                    {% endif %}
+                                    {% if user.role != 'admin' %}
+                                    <button class="btn btn-sm btn-outline-danger" onclick="deleteUser({{ user.id }})">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Listings Tab -->
+        <div class="tab-pane fade" id="listings" role="tabpanel">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th>ID</th>
+                                <th>Food Name</th>
+                                <th>Donor</th>
+                                <th>Quantity</th>
+                                <th>Zone</th>
+                                <th>Expiry</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for listing in listings %}
+                            <tr>
+                                <td>{{ listing.id }}</td>
+                                <td><strong>{{ listing.food_name }}</strong></td>
+                                <td>{{ listing.donor.name }}</td>
+                                <td>{{ listing.quantity }} kg</td>
+                                <td><span class="badge bg-secondary">{{ listing.zone }}</span></td>
+                                <td>{{ listing.expiry_time.strftime('%d %b, %H:%M') }}</td>
+                                <td>
+                                    {% if listing.status == 'available' %}
+                                    <span class="badge bg-success">Available</span>
+                                    {% elif listing.status == 'claimed' %}
+                                    <span class="badge bg-warning text-dark">Claimed</span>
+                                    {% else %}
+                                    <span class="badge bg-secondary">{{ listing.status }}</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-danger" onclick="deleteListing({{ listing.id }})">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Claims Tab -->
+        <div class="tab-pane fade" id="claims" role="tabpanel">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th>ID</th>
+                                <th>Food</th>
+                                <th>Receiver</th>
+                                <th>Zone</th>
+                                <th>Claimed At</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for claim in claims %}
+                            <tr>
+                                <td>{{ claim.id }}</td>
+                                <td><strong>{{ claim.listing.food_name }}</strong></td>
+                                <td>{{ claim.receiver.name }}</td>
+                                <td><span class="badge bg-secondary">{{ claim.listing.zone }}</span></td>
+                                <td>{{ claim.claimed_at.strftime('%d %b, %H:%M') }}</td>
+                                <td>
+                                    <span class="badge {% if claim.status == 'pending' %}bg-warning text-dark{% elif claim.status == 'completed' %}bg-success{% else %}bg-secondary{% endif %}">
+                                        {{ claim.status }}
+                                    </span>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Initialize Chart
+const ctx = document.getElementById('predictionChart').getContext('2d');
+const chartData = {{ chart_data | tojson }};
+
+new Chart(ctx, {
+    type: 'bar',
+    data: {
+        labels: chartData.labels,
+        datasets: chartData.datasets
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                position: 'bottom'
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: true,
+                title: {
+                    display: true,
+                    text: 'Days with Surplus'
+                }
+            }
+        }
+    }
+});
+
+// Admin actions
+async function approveUser(id) {
+    if (confirm('Approve this user?')) {
+        const response = await fetch(`/api/admin/users/${id}/approve`, { method: 'POST' });
+        if (response.ok) location.reload();
+    }
+}
+
+async function deleteUser(id) {
+    if (confirm('Delete this user? This cannot be undone.')) {
+        const response = await fetch(`/api/admin/users/${id}/reject`, { method: 'POST' });
+        if (response.ok) location.reload();
+    }
+}
+
+async function deleteListing(id) {
+    if (confirm('Delete this listing?')) {
+        const response = await fetch(`/api/listings/${id}`, { method: 'DELETE' });
+        if (response.ok) location.reload();
+    }
+}
+</script>
+{% endblock %}
